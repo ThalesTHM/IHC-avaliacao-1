@@ -1,0 +1,78 @@
+Você é um especialista em UX e Interação Humano-Computador. Com base nos dados estatísticos de uma pesquisa realizada com 50 frequentadores de uma academia de musculação de bairro, crie uma persona detalhada para fins acadêmicos de IHC.
+
+=== DADOS DA PESQUISA ===
+
+Contexto: Pesquisa sobre a experiência de uso de uma academia de musculação, aplicada a 50 frequentadores escolhidos aleatoriamente.
+
+Perfil demográfico:
+- Idades: entre 18 e 63 anos; média de 28,4 anos; mediana de 25 anos; desvio padrão de 9,7 anos
+  (82% da amostra entre 18 e 35 anos; um respondente outlier de 63 anos)
+- Sexo: Masculino (58%), Feminino (42%)
+- Objetivo principal: Hipertrofia (36%), Emagrecimento (26%), Saúde geral (22%), Condicionamento (16%)
+
+Padrões de uso:
+- Frequência semanal: moda = 3 dias/semana; média = 3,32 dias
+  Distribuição: 1x/semana (2%), 2x (18%), 3x (40%), 4x (24%), 5x (16%)
+- Horário preferido: Noite 18h–22h (48%), Manhã 6h–9h (36%), Tarde 12h–15h (16%)
+- Tempo de matrícula: mediana = 24 meses; média = 45,4 meses
+- Mensalidade: média = R$ 96,30; mediana = R$ 90,00; moda = R$ 100,00; outlier de R$ 200,00
+
+Satisfação (escala 1 a 5):
+- Espaço físico e equipamentos: média 3,32 — nota 3 mais frequente (52%) — PIOR critério avaliado
+- Qualidade do instrutor: média 4,12 — nota 4 mais frequente (54%) — MELHOR critério avaliado
+- Preço da mensalidade: média 3,50 — nota 4 mais frequente (56%)
+
+Intenção de recomendação:
+- Sim: 80%
+- Não: 10%
+- Talvez: 10%
+
+Principal reclamação:
+- Equipamentos lotados nos horários de pico: 50% (dos que reclamam)
+- Falta de equipamentos: 19,6% (dos que reclamam)
+- Preço da mensalidade: 17,4% (dos que reclamam)
+- Limpeza insuficiente: 13% (dos que reclamam)
+
+=== INSTRUÇÕES PARA CRIAÇÃO DA PERSONA ===
+
+Com base nesses dados, crie UMA persona primária que representa o usuário típico da academia.
+A persona deve conter exatamente as seções abaixo, formatadas de maneira clara e organizada para uma apresentação acadêmica de IHC:
+
+1. NOME COMPLETO
+   (nome brasileiro comum, típico da faixa etária)
+
+2. APARÊNCIA FÍSICA
+   (descreva brevemente a aparência da persona — biotipo, postura, como se veste para treinar)
+
+3. DADOS DEMOGRÁFICOS
+   - Idade
+   - Ocupação / situação profissional
+   - Cidade / contexto geográfico
+   - Renda estimada
+   - Tempo de matrícula na academia
+
+4. CITAÇÃO REPRESENTATIVA
+   (uma frase curta e direta que ela diria sobre a academia, com suas próprias palavras, entre aspas)
+
+5. BACKGROUND E HISTÓRIA
+   (2 a 3 parágrafos descrevendo quem é essa pessoa, sua rotina diária, por que começou a malhar,
+   contexto socioeconômico e como a academia se encaixa na sua vida)
+
+6. OBJETIVOS
+   (4 objetivos relacionados ao uso da academia — o que ela espera ao treinar lá)
+
+7. FRUSTRAÇÕES
+   (4 frustrações baseadas diretamente nos dados — especialmente lotação, falta de equipamentos, limpeza)
+
+8. COMPORTAMENTOS
+   (como, quando e com quem frequenta a academia; rotina de treino; se usa suplementos, apps de treino etc.)
+
+9. RELAÇÃO COM TECNOLOGIA
+   (uso de smartphone, apps de fitness, redes sociais, wearables — nível de letramento digital)
+
+10. NECESSIDADES DE IHC
+    (o que um sistema ou interface para a academia — ex.: app de reserva de horário, painel de ocupação,
+    avaliação de treino online — deveria oferecer para atender bem essa persona; liste 4 a 5 necessidades concretas)
+
+Formate a resposta em Markdown, com títulos em negrito para cada seção.
+A persona deve ser coerente internamente: todos os campos devem se alinhar ao perfil estatístico descrito.
