@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitSync — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0D0D1A;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 32px 16px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .phone {
+    width: 390px;
+    min-height: 844px;
+    background: #1A1A2E;
+    border-radius: 48px;
+    border: 8px solid #2A2A3E;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Status Bar */
+  .status-bar {
+    background: #1A1A2E;
+    padding: 14px 28px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .status-bar .time { font-size: 15px; font-weight: 600; color: #fff; }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  .status-icons span { font-size: 13px; color: #fff; }
+
+  /* Conteúdo scrollável */
+  .screen-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    scrollbar-width: none;
+  }
+  .screen-content::-webkit-scrollbar { display: none; }
+
+  /* ── SPLASH ── */
+  #splash {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 760px;
+    background: linear-gradient(135deg, #1A1A2E 0%, #0F3460 100%);
+    padding: 48px 32px;
+  }
+
+  .logo-circle {
+    width: 96px; height: 96px;
+    background: rgba(255,107,53,0.15);
+    border-radius: 28px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 24px;
+    border: 1.5px solid rgba(255,107,53,0.3);
+  }
+  .logo-circle svg { width: 52px; height: 52px; }
+
+  .app-name {
+    font-size: 36px; font-weight: 700;
+    color: #fff; letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .app-tagline { font-size: 14px; color: #B0B0C0; margin-bottom: 56px; }
+
+  .progress-track {
+    width: 120px; height: 3px;
+    background: #2A2A4A; border-radius: 4px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; width: 0%; background: #FF6B35; border-radius: 4px;
+    animation: loadBar 2s ease-out forwards;
+  }
+  @keyframes loadBar { to { width: 100%; } }
+
+  /* ── LOGIN ── */
+  #login {
+    padding: 32px 28px 40px;
+    min-height: 760px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .login-back {
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 32px; cursor: pointer;
+    color: #B0B0C0; font-size: 22px;
+  }
+
+  .login-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .login-logo-icon {
+    width: 36px; height: 36px;
+    background: rgba(255,107,53,0.15);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .login-logo-icon svg { width: 20px; height: 20px; }
+  .login-logo-text { font-size: 20px; font-weight: 700; color: #fff; }
+
+  .login-title { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 6px; line-height: 1.2; }
+  .login-subtitle { font-size: 14px; color: #B0B0C0; margin-bottom: 32px; }
+
+  .field-group { margin-bottom: 16px; }
+  .field-label { font-size: 12px; font-weight: 500; color: #B0B0C0; margin-bottom: 6px; display: block; }
+  .field-wrap { position: relative; }
+  .field-input {
+    width: 100%; padding: 14px 16px;
+    background: #0F3460; border: 1px solid #2A2A4A;
+    border-radius: 10px; color: #fff;
+    font-size: 15px; font-family: 'Inter', sans-serif;
+    outline: none; transition: border-color .2s;
+    -webkit-appearance: none;
+  }
+  .field-input::placeholder { color: #555575; }
+  .field-input:focus { border-color: #FF6B35; }
+  .field-eye {
+    position: absolute; right: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: #555575; cursor: pointer; font-size: 18px;
+  }
+
+  .forgot-link {
+    text-align: right; margin-top: 8px; margin-bottom: 24px;
+    font-size: 13px; color: #FF6B35; cursor: pointer;
+  }
+
+  .btn-primary {
+    width: 100%; padding: 16px;
+    background: #FF6B35; border: none; border-radius: 12px;
+    color: #fff; font-size: 15px; font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer; letter-spacing: 0.3px;
+    box-shadow: 0 4px 15px rgba(255,107,53,0.4);
+    transition: background .2s, transform .1s;
+    -webkit-appearance: none;
+  }
+  .btn-primary:active { background: #E55A2B; transform: scale(0.98); }
+
+  .btn-outline {
+    width: 100%; padding: 15px;
+    background: transparent; border: 1.5px solid #FF6B35;
+    border-radius: 12px; color: #FF6B35;
+    font-size: 15px; font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: background .2s;
+    -webkit-appearance: none;
+  }
+  .btn-outline:active { background: rgba(255,107,53,0.1); }
+
+  .divider-or {
+    display: flex; align-items: center; gap: 12px;
+    margin: 20px 0; color: #555575; font-size: 13px;
+  }
+  .divider-or::before, .divider-or::after {
+    content: ''; flex: 1; height: 1px; background: #2A2A4A;
+  }
+
+  .signup-row {
+    text-align: center; margin-top: 28px;
+    font-size: 14px; color: #B0B0C0;
+  }
+  .signup-row a { color: #FF6B35; font-weight: 600; text-decoration: none; cursor: pointer; }
+
+  .biometric-hint {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 20px; color: #555575; font-size: 13px; cursor: pointer;
+  }
+  .biometric-hint svg { width: 20px; height: 20px; fill: #555575; }
+
+  /* Tabs para alternar splash/login */
+  .demo-nav {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; z-index: 999;
+  }
+  .demo-btn {
+    padding: 8px 18px; border-radius: 20px; border: none;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all .2s;
+  }
+  .demo-btn.active { background: #FF6B35; color: #fff; }
+  .demo-btn:not(.active) { background: #2A2A4A; color: #B0B0C0; }
+
+  .google-icon { width: 18px; height: 18px; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">18:45</span>
+    <div class="status-icons">
+      <span>▲▲▲</span>
+      <span>WiFi</span>
+      <span>⬛ 87%</span>
+    </div>
+  </div>
+
+  <div class="screen-content">
+
+    <!-- SPLASH SCREEN -->
+    <div id="splash">
+      <div class="logo-circle">
+        <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="22" width="44" height="8" rx="4" fill="#FF6B35"/>
+          <rect x="0" y="18" width="12" height="16" rx="4" fill="#FF6B35"/>
+          <rect x="40" y="18" width="12" height="16" rx="4" fill="#FF6B35"/>
+          <rect x="8" y="14" width="8" height="24" rx="3" fill="#FF8C5A"/>
+          <rect x="36" y="14" width="8" height="24" rx="3" fill="#FF8C5A"/>
+        </svg>
+      </div>
+      <div class="app-name">FitSync</div>
+      <div class="app-tagline">Academia de Bairro</div>
+      <div class="progress-track">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- LOGIN SCREEN (escondido por padrão) -->
+    <div id="login" style="display:none;">
+      <div class="login-back" onclick="showSplash()">&#8592;</div>
+
+      <div class="login-logo">
+        <div class="login-logo-icon">
+          <svg viewBox="0 0 52 52" fill="none">
+            <rect x="4" y="22" width="44" height="8" rx="4" fill="#FF6B35"/>
+            <rect x="0" y="18" width="12" height="16" rx="4" fill="#FF6B35"/>
+            <rect x="40" y="18" width="12" height="16" rx="4" fill="#FF6B35"/>
+            <rect x="8" y="14" width="8" height="24" rx="3" fill="#FF8C5A"/>
+            <rect x="36" y="14" width="8" height="24" rx="3" fill="#FF8C5A"/>
+          </svg>
+        </div>
+        <span class="login-logo-text">FitSync</span>
+      </div>
+
+      <div class="login-title">Bem-vindo<br>de volta!</div>
+      <div class="login-subtitle">Entre na sua conta para continuar</div>
+
+      <div class="field-group">
+        <label class="field-label">E-mail</label>
+        <input class="field-input" type="email" placeholder="lucas@email.com">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Senha</label>
+        <div class="field-wrap">
+          <input class="field-input" type="password" placeholder="••••••••" style="padding-right:44px">
+          <span class="field-eye">&#128065;</span>
+        </div>
+      </div>
+
+      <div class="forgot-link">Esqueci minha senha</div>
+
+      <button class="btn-primary" onclick="window.location.href='02-home-dashboard.html'">
+        ENTRAR
+      </button>
+
+      <div class="divider-or">ou</div>
+
+      <button class="btn-outline">
+        <svg class="google-icon" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+          <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+        </svg>
+        Continuar com Google
+      </button>
+
+      <div class="biometric-hint">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.81 4.47c-.08 0-.16-.02-.23-.06C15.66 3.42 14 3 12.01 3c-1.98 0-3.86.47-5.57 1.41-.24.13-.54.04-.68-.2-.13-.24-.04-.55.2-.68C7.82 2.52 9.86 2 12.01 2c2.13 0 3.99.47 6.03 1.52.25.13.34.43.21.67-.09.18-.26.28-.44.28zM3.5 9.72c-.1 0-.2-.03-.29-.09-.23-.16-.28-.47-.12-.7.99-1.4 2.25-2.5 3.75-3.27C9.98 4.04 14 4.03 17.15 6.65c1.5.77 2.76 1.86 3.75 3.25.16.22.11.54-.12.7-.23.16-.54.11-.7-.12-.9-1.26-2.04-2.25-3.39-2.94-2.87-2.43-6.62-2.43-9.5 0-1.36.7-2.5 1.7-3.4 2.96-.08.14-.23.22-.39.22zm6.25 12.07c-.13 0-.26-.05-.35-.15-.87-.87-1.34-1.43-2.01-2.64-.69-1.23-1.05-2.73-1.05-4.34 0-2.97 2.54-5.39 5.66-5.39s5.66 2.42 5.66 5.39c0 .28-.22.5-.5.5s-.5-.22-.5-.5c0-2.42-2.09-4.39-4.66-4.39-2.57 0-4.66 1.97-4.66 4.39 0 1.44.32 2.77.93 3.85.64 1.15 1.08 1.64 1.85 2.42.19.2.19.51 0 .71-.11.1-.24.15-.37.15zm7.17-1.45c-1.19.09-2.4-.15-3.4-.85-1.33-.93-2.1-2.41-2.1-4.07 0-.28.22-.5.5-.5s.5.22.5.5c0 1.35.61 2.57 1.68 3.35.84.59 1.87.8 2.84.73.28-.02.53.19.55.47.01.28-.19.53-.47.55-.03.02-.07.02-.1.02zm-7.26-8.86c-.12 0-.25-.05-.35-.14-.2-.19-.2-.51-.01-.71.98-1.01 2.27-1.57 3.66-1.57s2.68.56 3.66 1.57c.2.2.19.52-.01.71-.2.2-.52.19-.71-.01-.8-.82-1.86-1.27-2.94-1.27s-2.14.45-2.94 1.27c-.09.1-.22.15-.36.15z"/>
+        </svg>
+        Usar biometria
+      </div>
+
+      <div class="signup-row">
+        Não tem conta? <a>Cadastre-se</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Controles de demonstração -->
+<div class="demo-nav">
+  <button class="demo-btn active" id="btn-splash" onclick="showSplash()">Splash</button>
+  <button class="demo-btn" id="btn-login" onclick="showLogin()">Login</button>
+</div>
+
+<script>
+  function showSplash() {
+    document.getElementById('splash').style.display = 'flex';
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('btn-splash').classList.add('active');
+    document.getElementById('btn-login').classList.remove('active');
+  }
+  function showLogin() {
+    document.getElementById('splash').style.display = 'none';
+    document.getElementById('login').style.display = 'flex';
+    document.getElementById('btn-login').classList.add('active');
+    document.getElementById('btn-splash').classList.remove('active');
+  }
+  // Após 2s, muda automaticamente para login
+  setTimeout(() => showLogin(), 2200);
+</script>
+</body>
+</html>

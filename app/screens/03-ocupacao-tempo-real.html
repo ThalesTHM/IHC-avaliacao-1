@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitSync — Lotação</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0D0D1A;
+    display: flex; justify-content: center; align-items: flex-start;
+    min-height: 100vh; padding: 32px 16px;
+    font-family: 'Inter', sans-serif;
+  }
+  .phone {
+    width: 390px; min-height: 844px;
+    background: #1A1A2E;
+    border-radius: 48px; border: 8px solid #2A2A3E;
+    overflow: hidden; position: relative;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+    display: flex; flex-direction: column;
+  }
+  .status-bar {
+    background: #1A1A2E; padding: 14px 28px 8px;
+    display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+  }
+  .status-bar .time { font-size: 15px; font-weight: 600; color: #fff; }
+  .status-icons { display: flex; gap: 6px; align-items: center; font-size: 12px; color: #fff; }
+  .screen-content {
+    flex: 1; overflow-y: auto; scrollbar-width: none; padding-bottom: 80px;
+  }
+  .screen-content::-webkit-scrollbar { display: none; }
+
+  /* Top Bar */
+  .top-bar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 20px 12px;
+  }
+  .back-btn {
+    width: 38px; height: 38px; background: #16213E; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .back-btn svg { width: 20px; height: 20px; fill: #fff; }
+  .top-title { font-size: 18px; font-weight: 700; color: #fff; }
+
+  /* Indicador Principal */
+  .main-card {
+    margin: 4px 20px 16px;
+    background: #16213E; border-radius: 20px;
+    padding: 24px 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .main-timestamp {
+    font-size: 11px; font-weight: 600; color: #FF6B35;
+    letter-spacing: 0.6px; text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .pulse-dot {
+    width: 8px; height: 8px; background: #FF6B35;
+    border-radius: 50%; animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .indicator-row {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+  }
+  .indicator-circle {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: rgba(244,67,54,0.12);
+    border: 3px solid #F44336;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    position: relative;
+  }
+  .indicator-circle svg { width: 32px; height: 32px; fill: #F44336; }
+  .indicator-right { text-align: right; }
+  .indicator-status { font-size: 32px; font-weight: 700; color: #F44336; line-height: 1; }
+  .indicator-people { font-size: 14px; color: #B0B0C0; margin-top: 4px; }
+  .indicator-people strong { color: #fff; }
+
+  .bar-track {
+    height: 12px; background: #2A2A4A; border-radius: 6px; overflow: hidden; margin-bottom: 8px;
+  }
+  .bar-fill { height: 100%; border-radius: 6px; }
+  .bar-fill.red { width: 76%; background: linear-gradient(90deg, #F44336, #FF6B6B); }
+  .bar-fill.yellow { width: 52%; background: linear-gradient(90deg, #FFC107, #FFD54F); }
+  .bar-fill.green { width: 28%; background: linear-gradient(90deg, #4CAF50, #81C784); }
+
+  .bar-meta {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: #555575; margin-bottom: 16px;
+  }
+  .wait-info {
+    background: rgba(255,107,53,0.08); border: 1px solid rgba(255,107,53,0.2);
+    border-radius: 10px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  }
+  .wait-info svg { width: 18px; height: 18px; fill: #FF8C5A; flex-shrink: 0; }
+  .wait-info span { font-size: 13px; color: #B0B0C0; }
+  .wait-info strong { color: #FF8C5A; }
+
+  .btn-notify {
+    width: 100%; padding: 13px;
+    background: transparent; border: 1.5px solid #FF6B35;
+    border-radius: 12px; color: #FF6B35;
+    font-size: 14px; font-weight: 700; font-family: 'Inter', sans-serif;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-notify svg { width: 18px; height: 18px; fill: #FF6B35; }
+
+  /* Seção */
+  .section-label {
+    font-size: 11px; font-weight: 600; color: #555575;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    padding: 16px 20px 10px;
+  }
+
+  /* Gráfico de Barras */
+  .chart-card {
+    margin: 0 20px 16px;
+    background: #16213E; border-radius: 16px; padding: 16px 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .chart-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 14px; }
+  .bar-chart {
+    display: flex; align-items: flex-end; gap: 8px;
+    height: 80px; margin-bottom: 8px;
+  }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar-col-fill {
+    width: 100%; border-radius: 4px 4px 0 0; transition: height .3s;
+  }
+  .bar-col-label { font-size: 10px; color: #555575; }
+  .bar-col.current .bar-col-fill { outline: 2px solid #FF6B35; outline-offset: 2px; }
+  .bar-col.current .bar-col-label { color: #FF6B35; font-weight: 600; }
+
+  /* Melhores Horários */
+  .best-times {
+    display: flex; gap: 10px; padding: 0 20px 16px;
+  }
+  .best-card {
+    flex: 1; background: rgba(76,175,80,0.08);
+    border: 1px solid rgba(76,175,80,0.3);
+    border-radius: 14px; padding: 14px 12px;
+    display: flex; flex-direction: column; gap: 4px;
+    cursor: pointer;
+  }
+  .best-time { font-size: 20px; font-weight: 700; color: #4CAF50; }
+  .best-status { font-size: 11px; color: #4CAF50; font-weight: 500; }
+  .best-est { font-size: 11px; color: #B0B0C0; }
+
+  /* Histórico Semanal */
+  .week-tabs {
+    display: flex; gap: 6px; padding: 0 20px 12px; overflow-x: auto; scrollbar-width: none;
+  }
+  .week-tabs::-webkit-scrollbar { display: none; }
+  .week-tab {
+    padding: 6px 14px; border-radius: 20px; border: 1px solid #2A2A4A;
+    font-size: 12px; font-weight: 600; color: #B0B0C0;
+    cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    background: transparent; font-family: 'Inter', sans-serif;
+  }
+  .week-tab.active {
+    background: #FF6B35; border-color: #FF6B35; color: #fff;
+  }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 72px;
+    background: #16213E; box-shadow: 0 -2px 10px rgba(0,0,0,0.4);
+    display: flex; align-items: center; padding: 0 8px 8px;
+    border-top: 1px solid #2A2A4A; border-radius: 0 0 40px 40px;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 3px; cursor: pointer; padding: 8px 0;
+  }
+  .nav-item svg { width: 22px; height: 22px; }
+  .nav-label { font-size: 10px; font-weight: 500; }
+  .nav-item.active svg { fill: #FF6B35; }
+  .nav-item.active .nav-label { color: #FF6B35; }
+  .nav-item:not(.active) svg { fill: #555575; }
+  .nav-item:not(.active) .nav-label { color: #555575; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="status-bar">
+    <span class="time">18:45</span>
+    <div class="status-icons"><span>▲▲▲</span><span>WiFi</span><span>⬛ 87%</span></div>
+  </div>
+
+  <div class="screen-content">
+
+    <div class="top-bar">
+      <div class="back-btn" onclick="window.location.href='02-home-dashboard.html'">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </div>
+      <div class="top-title">Lotação da Academia</div>
+    </div>
+
+    <!-- Card Principal -->
+    <div class="main-card">
+      <div class="main-timestamp">
+        <div class="pulse-dot"></div>
+        Ao vivo — 18h45
+      </div>
+
+      <div class="indicator-row">
+        <div class="indicator-circle">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        </div>
+        <div class="indicator-right">
+          <div class="indicator-status">ALTA</div>
+          <div class="indicator-people"><strong>38 / 50</strong> pessoas</div>
+        </div>
+      </div>
+
+      <div class="bar-track"><div class="bar-fill red"></div></div>
+      <div class="bar-meta">
+        <span>76% da capacidade</span>
+        <span>Atualizado há 42s</span>
+      </div>
+
+      <div class="wait-info">
+        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+        <span>Tempo médio de espera por aparelho: <strong>~8 min</strong></span>
+      </div>
+
+      <button class="btn-notify">
+        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        Me avise quando baixar
+      </button>
+    </div>
+
+    <!-- Gráfico do Dia -->
+    <div class="section-label">Previsão para hoje</div>
+    <div class="chart-card">
+      <div class="chart-title">Lotação por horário — Segunda</div>
+      <div class="bar-chart">
+        <!-- cada barra: height em px proporcional ao percentual -->
+        <div class="bar-col">
+          <div class="bar-col-fill" style="height:38px;background:#4CAF50;"></div>
+          <div class="bar-col-label">6h</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-col-fill" style="height:28px;background:#4CAF50;"></div>
+          <div class="bar-col-label">8h</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-col-fill" style="height:22px;background:#4CAF50;"></div>
+          <div class="bar-col-label">10h</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-col-fill" style="height:30px;background:#4CAF50;"></div>
+          <div class="bar-col-label">12h</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-col-fill" style="height:36px;background:#FFC107;"></div>
+          <div class="bar-col-label">15h</div>
+        </div>
+        <div class="bar-col current">
+          <div class="bar-col-fill" style="height:61px;background:linear-gradient(180deg,#F44336,#FF6B6B);"></div>
+          <div class="bar-col-label">18h</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-col-fill" style="height:68px;background:#F44336;"></div>
+          <div class="bar-col-label">19h</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-col-fill" style="height:42px;background:#FFC107;"></div>
+          <div class="bar-col-label">20h</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-col-fill" style="height:24px;background:#4CAF50;"></div>
+          <div class="bar-col-label">21h</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Melhores Horários -->
+    <div class="section-label">Melhor horário para treinar</div>
+    <div class="best-times">
+      <div class="best-card">
+        <div class="best-time">9h</div>
+        <div class="best-status">● Baixa</div>
+        <div class="best-est">~22% ocupado</div>
+      </div>
+      <div class="best-card">
+        <div class="best-time">10h</div>
+        <div class="best-status">● Baixa</div>
+        <div class="best-est">~18% ocupado</div>
+      </div>
+      <div class="best-card">
+        <div class="best-time">21h</div>
+        <div class="best-status">● Baixa</div>
+        <div class="best-est">~30% ocupado</div>
+      </div>
+    </div>
+
+    <!-- Histórico Semanal -->
+    <div class="section-label">Histórico semanal</div>
+    <div class="week-tabs">
+      <button class="week-tab active">Seg</button>
+      <button class="week-tab">Ter</button>
+      <button class="week-tab">Qua</button>
+      <button class="week-tab">Qui</button>
+      <button class="week-tab">Sex</button>
+      <button class="week-tab">Sáb</button>
+      <button class="week-tab">Dom</button>
+    </div>
+
+    <div style="margin:0 20px 16px;background:#16213E;border-radius:16px;padding:16px 20px;">
+      <div style="font-size:12px;color:#B0B0C0;margin-bottom:12px;">Média das últimas 4 segundas-feiras</div>
+      <div class="bar-chart">
+        <div class="bar-col"><div class="bar-col-fill" style="height:35px;background:#4CAF50;"></div><div class="bar-col-label">6h</div></div>
+        <div class="bar-col"><div class="bar-col-fill" style="height:26px;background:#4CAF50;"></div><div class="bar-col-label">8h</div></div>
+        <div class="bar-col"><div class="bar-col-fill" style="height:20px;background:#4CAF50;"></div><div class="bar-col-label">10h</div></div>
+        <div class="bar-col"><div class="bar-col-fill" style="height:32px;background:#FFC107;"></div><div class="bar-col-label">12h</div></div>
+        <div class="bar-col"><div class="bar-col-fill" style="height:38px;background:#FFC107;"></div><div class="bar-col-label">15h</div></div>
+        <div class="bar-col"><div class="bar-col-fill" style="height:62px;background:#F44336;"></div><div class="bar-col-label">18h</div></div>
+        <div class="bar-col"><div class="bar-col-fill" style="height:70px;background:#F44336;"></div><div class="bar-col-label">19h</div></div>
+        <div class="bar-col"><div class="bar-col-fill" style="height:40px;background:#FFC107;"></div><div class="bar-col-label">20h</div></div>
+        <div class="bar-col"><div class="bar-col-fill" style="height:22px;background:#4CAF50;"></div><div class="bar-col-label">21h</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="window.location.href='02-home-dashboard.html'">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span class="nav-label">Home</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='04-ficha-treino.html'">
+      <svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/></svg>
+      <span class="nav-label">Treino</span>
+    </div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+      <span class="nav-label">Lotação</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='05-reserva-equipamentos.html'">
+      <svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+      <span class="nav-label">Reservas</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='07-historico-evolucao.html'">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <span class="nav-label">Perfil</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitSync — Feedback</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0D0D1A; display: flex; justify-content: center; align-items: flex-start;
+    min-height: 100vh; padding: 32px 16px; font-family: 'Inter', sans-serif;
+  }
+  .phone {
+    width: 390px; min-height: 844px; background: #1A1A2E;
+    border-radius: 48px; border: 8px solid #2A2A3E; overflow: hidden;
+    position: relative; box-shadow: 0 40px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+    display: flex; flex-direction: column;
+  }
+  .status-bar {
+    background: #1A1A2E; padding: 14px 28px 8px;
+    display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+  }
+  .status-bar .time { font-size: 15px; font-weight: 600; color: #fff; }
+  .status-icons { display: flex; gap: 6px; font-size: 12px; color: #fff; }
+  .screen-content { flex: 1; overflow-y: auto; scrollbar-width: none; padding-bottom: 100px; }
+  .screen-content::-webkit-scrollbar { display: none; }
+
+  .top-bar {
+    display: flex; align-items: center; gap: 12px; padding: 16px 20px 12px;
+  }
+  .back-btn {
+    width: 38px; height: 38px; background: #16213E; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .back-btn svg { width: 20px; height: 20px; fill: #fff; }
+  .top-title { font-size: 18px; font-weight: 700; color: #fff; flex: 1; }
+
+  .section-label {
+    font-size: 11px; font-weight: 600; color: #555575;
+    letter-spacing: 0.8px; text-transform: uppercase; padding: 14px 20px 8px;
+  }
+
+  /* Stats Banner */
+  .stats-row {
+    display: flex; gap: 10px; padding: 0 20px 16px;
+  }
+  .stat-card {
+    flex: 1; background: #16213E; border-radius: 14px; padding: 14px 12px;
+    text-align: center;
+  }
+  .stat-val { font-size: 22px; font-weight: 700; margin-bottom: 3px; }
+  .stat-label { font-size: 11px; color: #B0B0C0; }
+
+  /* Reporte Card */
+  .report-card {
+    margin: 0 20px 10px; background: #16213E; border-radius: 16px;
+    overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .report-main { padding: 14px 16px; }
+  .report-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .report-cat-icon {
+    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .report-info { flex: 1; }
+  .report-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+  .report-sub { font-size: 12px; color: #B0B0C0; }
+  .report-status {
+    padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
+    flex-shrink: 0; align-self: flex-start;
+  }
+  .status-analise { background: rgba(255,193,7,0.15); color: #FFC107; }
+  .status-andamento { background: rgba(33,150,243,0.15); color: #2196F3; }
+  .status-resolvido { background: rgba(76,175,80,0.15); color: #4CAF50; }
+
+  .report-desc { font-size: 13px; color: #B0B0C0; line-height: 1.5; margin-bottom: 10px; }
+  .report-footer {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .report-proto { font-size: 11px; color: #555575; }
+  .report-date { font-size: 11px; color: #555575; }
+
+  /* Progresso do reporte */
+  .report-progress {
+    border-top: 1px solid #2A2A4A; padding: 12px 16px;
+  }
+  .progress-steps { display: flex; align-items: center; gap: 0; }
+  .p-step { display: flex; flex-direction: column; align-items: center; flex: 1; }
+  .p-dot {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; z-index: 1;
+  }
+  .p-dot.done { background: #4CAF50; color: #fff; }
+  .p-dot.active { background: #2196F3; color: #fff; }
+  .p-dot.pending { background: #2A2A4A; color: #555575; }
+  .p-line { height: 2px; flex: 1; margin-top: -12px; }
+  .p-line.done { background: #4CAF50; }
+  .p-line.pending { background: #2A2A4A; }
+  .p-label { font-size: 9px; color: #555575; margin-top: 4px; text-align: center; white-space: nowrap; }
+  .p-label.done { color: #4CAF50; }
+  .p-label.active { color: #2196F3; }
+
+  /* FAB */
+  .fab {
+    position: absolute; bottom: 84px; right: 20px;
+    width: 56px; height: 56px; background: #FF6B35; border-radius: 18px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255,107,53,0.5); border: none;
+    transition: transform .15s;
+  }
+  .fab:active { transform: scale(0.94); }
+  .fab svg { width: 26px; height: 26px; fill: #fff; }
+
+  /* Modal Novo Reporte */
+  .new-modal {
+    position: absolute; inset: 0; background: #1A1A2E;
+    display: none; flex-direction: column; z-index: 100; border-radius: 40px;
+    overflow-y: auto; scrollbar-width: none;
+  }
+  .new-modal.show { display: flex; }
+  .new-modal::-webkit-scrollbar { display: none; }
+  .modal-header {
+    padding: 20px 20px 16px; display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid #2A2A4A; flex-shrink: 0;
+  }
+  .modal-close-btn {
+    width: 36px; height: 36px; background: #2A2A4A; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; border: none;
+  }
+  .modal-close-btn svg { width: 20px; height: 20px; fill: #fff; }
+  .modal-title { font-size: 18px; font-weight: 700; color: #fff; }
+  .modal-body { padding: 20px; flex: 1; }
+
+  .form-label { font-size: 12px; font-weight: 600; color: #B0B0C0; margin-bottom: 8px; display: block; }
+
+  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+  .cat-btn {
+    padding: 12px 10px; background: #16213E; border: 1.5px solid #2A2A4A;
+    border-radius: 12px; cursor: pointer; display: flex; flex-direction: column;
+    align-items: center; gap: 6px; font-family: 'Inter', sans-serif;
+    transition: all .2s;
+  }
+  .cat-btn.selected { border-color: #FF6B35; background: rgba(255,107,53,0.1); }
+  .cat-btn span:first-child { font-size: 22px; }
+  .cat-btn span:last-child { font-size: 12px; font-weight: 600; color: #B0B0C0; }
+  .cat-btn.selected span:last-child { color: #FF6B35; }
+
+  .field-select {
+    width: 100%; padding: 13px 16px; background: #0F3460;
+    border: 1px solid #2A2A4A; border-radius: 10px; color: #fff;
+    font-size: 14px; font-family: 'Inter', sans-serif; outline: none;
+    margin-bottom: 16px; -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555575'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center; background-size: 20px;
+    padding-right: 36px;
+  }
+
+  .field-textarea {
+    width: 100%; padding: 13px 16px; background: #0F3460;
+    border: 1px solid #2A2A4A; border-radius: 10px; color: #fff;
+    font-size: 14px; font-family: 'Inter', sans-serif; outline: none;
+    resize: none; min-height: 90px; margin-bottom: 16px;
+    -webkit-appearance: none;
+  }
+  .field-textarea::placeholder { color: #555575; }
+  .field-textarea:focus { border-color: #FF6B35; }
+
+  .photo-btn {
+    width: 100%; padding: 13px; background: #0F3460;
+    border: 1.5px dashed #2A2A4A; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 13px; font-weight: 600; color: #555575;
+    font-family: 'Inter', sans-serif; cursor: pointer; margin-bottom: 20px;
+  }
+  .photo-btn svg { width: 18px; height: 18px; fill: #555575; }
+
+  .submit-btn {
+    width: 100%; padding: 16px; background: #FF6B35; border: none; border-radius: 12px;
+    color: #fff; font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif;
+    cursor: pointer; box-shadow: 0 4px 15px rgba(255,107,53,0.35);
+  }
+
+  /* Toast */
+  .toast {
+    position: absolute; bottom: 84px; left: 20px; right: 20px;
+    background: #2A2A4A; border-radius: 12px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    transform: translateY(120%); transition: transform .3s ease; z-index: 200;
+  }
+  .toast.show { transform: translateY(0); }
+  .toast-icon {
+    width: 24px; height: 24px; border-radius: 8px; flex-shrink: 0;
+    background: rgba(76,175,80,0.2); display: flex; align-items: center; justify-content: center;
+  }
+  .toast-icon svg { width: 14px; height: 14px; fill: #4CAF50; }
+  .toast-text { font-size: 13px; color: #fff; }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 72px;
+    background: #16213E; box-shadow: 0 -2px 10px rgba(0,0,0,0.4);
+    display: flex; align-items: center; padding: 0 8px 8px;
+    border-top: 1px solid #2A2A4A; border-radius: 0 0 40px 40px;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 3px; cursor: pointer; padding: 8px 0;
+  }
+  .nav-item svg { width: 22px; height: 22px; }
+  .nav-label { font-size: 10px; font-weight: 500; }
+  .nav-item.active svg { fill: #FF6B35; }
+  .nav-item.active .nav-label { color: #FF6B35; }
+  .nav-item:not(.active) svg { fill: #555575; }
+  .nav-item:not(.active) .nav-label { color: #555575; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="status-bar">
+    <span class="time">19:15</span>
+    <div class="status-icons"><span>▲▲▲</span><span>WiFi</span><span>⬛ 78%</span></div>
+  </div>
+
+  <div class="screen-content">
+    <div class="top-bar">
+      <div class="back-btn" onclick="window.location.href='02-home-dashboard.html'">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </div>
+      <div class="top-title">Feedback & Manutenção</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val" style="color:#FFC107">2</div>
+        <div class="stat-label">Em análise</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:#2196F3">1</div>
+        <div class="stat-label">Em andamento</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:#4CAF50">8</div>
+        <div class="stat-label">Resolvidos</div>
+      </div>
+    </div>
+
+    <!-- Reportes Abertos -->
+    <div class="section-label">Seus reportes</div>
+
+    <!-- Reporte 1 - Em Análise -->
+    <div class="report-card">
+      <div class="report-main">
+        <div class="report-top">
+          <div class="report-cat-icon" style="background:rgba(244,67,54,0.1)">🔧</div>
+          <div class="report-info">
+            <div class="report-title">Banco de Supino Reto — estofado rasgado</div>
+            <div class="report-sub">Equipamento danificado · Musculação</div>
+          </div>
+          <div class="report-status status-analise">Em análise</div>
+        </div>
+        <div class="report-desc">
+          Estofado do encosto completamente rasgado. Está causando desconforto e risco de corte durante o treino.
+        </div>
+        <div class="report-footer">
+          <div class="report-proto">Protocolo #1247</div>
+          <div class="report-date">Hoje, 18:55</div>
+        </div>
+      </div>
+      <div class="report-progress">
+        <div class="progress-steps">
+          <div class="p-step">
+            <div class="p-dot done">✓</div>
+            <div class="p-label done">Enviado</div>
+          </div>
+          <div class="p-line done"></div>
+          <div class="p-step">
+            <div class="p-dot active">2</div>
+            <div class="p-label active">Análise</div>
+          </div>
+          <div class="p-line pending"></div>
+          <div class="p-step">
+            <div class="p-dot pending">3</div>
+            <div class="p-label">Executando</div>
+          </div>
+          <div class="p-line pending"></div>
+          <div class="p-step">
+            <div class="p-dot pending">4</div>
+            <div class="p-label">Resolvido</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reporte 2 - Em Andamento -->
+    <div class="report-card">
+      <div class="report-main">
+        <div class="report-top">
+          <div class="report-cat-icon" style="background:rgba(255,193,7,0.1)">🧹</div>
+          <div class="report-info">
+            <div class="report-title">Colchonetes sujos no tatame</div>
+            <div class="report-sub">Higiene e limpeza · Área de Alongamento</div>
+          </div>
+          <div class="report-status status-andamento">Em andamento</div>
+        </div>
+        <div class="report-desc">
+          Colchonetes com odor forte e manchas visíveis. Precisam de higienização urgente.
+        </div>
+        <div class="report-footer">
+          <div class="report-proto">Protocolo #1231</div>
+          <div class="report-date">05 jun, 20:10</div>
+        </div>
+      </div>
+      <div class="report-progress">
+        <div class="progress-steps">
+          <div class="p-step"><div class="p-dot done">✓</div><div class="p-label done">Enviado</div></div>
+          <div class="p-line done"></div>
+          <div class="p-step"><div class="p-dot done">✓</div><div class="p-label done">Análise</div></div>
+          <div class="p-line done"></div>
+          <div class="p-step"><div class="p-dot active">3</div><div class="p-label active">Executando</div></div>
+          <div class="p-line pending"></div>
+          <div class="p-step"><div class="p-dot pending">4</div><div class="p-label">Resolvido</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reporte 3 - Resolvido -->
+    <div class="report-card" style="opacity:0.6">
+      <div class="report-main">
+        <div class="report-top">
+          <div class="report-cat-icon" style="background:rgba(76,175,80,0.1)">❄️</div>
+          <div class="report-info">
+            <div class="report-title">Ar-condicionado com defeito</div>
+            <div class="report-sub">Infraestrutura · Recepção</div>
+          </div>
+          <div class="report-status status-resolvido">Resolvido</div>
+        </div>
+        <div class="report-desc">Ar-condicionado da recepção não gelava. Técnico fez a manutenção.</div>
+        <div class="report-footer">
+          <div class="report-proto">Protocolo #1198</div>
+          <div class="report-date">Resolvido em 28 mai</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção Categorias -->
+    <div class="section-label" style="margin-top:8px">O que você quer reportar?</div>
+    <div style="padding:0 20px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+      <div style="background:#16213E;border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer;" onclick="openModal()">
+        <div style="font-size:24px;margin-bottom:6px">🔧</div>
+        <div style="font-size:11px;font-weight:600;color:#B0B0C0">Equipamento</div>
+      </div>
+      <div style="background:#16213E;border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer;" onclick="openModal()">
+        <div style="font-size:24px;margin-bottom:6px">🧹</div>
+        <div style="font-size:11px;font-weight:600;color:#B0B0C0">Limpeza</div>
+      </div>
+      <div style="background:#16213E;border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer;" onclick="openModal()">
+        <div style="font-size:24px;margin-bottom:6px">💡</div>
+        <div style="font-size:11px;font-weight:600;color:#B0B0C0">Estrutura</div>
+      </div>
+      <div style="background:#16213E;border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer;" onclick="openModal()">
+        <div style="font-size:24px;margin-bottom:6px">🌡️</div>
+        <div style="font-size:11px;font-weight:600;color:#B0B0C0">Temperatura</div>
+      </div>
+      <div style="background:#16213E;border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer;" onclick="openModal()">
+        <div style="font-size:24px;margin-bottom:6px">💬</div>
+        <div style="font-size:11px;font-weight:600;color:#B0B0C0">Sugestão</div>
+      </div>
+      <div style="background:#16213E;border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer;" onclick="openModal()">
+        <div style="font-size:24px;margin-bottom:6px">⚠️</div>
+        <div style="font-size:11px;font-weight:600;color:#B0B0C0">Outro</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="openModal()">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+  </button>
+
+  <!-- Modal Novo Reporte -->
+  <div class="new-modal" id="newModal">
+    <div style="background:#1A1A2E;flex-shrink:0;border-radius:40px 40px 0 0;">
+      <div class="modal-header">
+        <button class="modal-close-btn" onclick="closeModal()">
+          <svg viewBox="0 0 24 24"><path d="M19 11H7.83l4.88-4.88c.39-.39.39-1.03 0-1.42-.39-.39-1.02-.39-1.41 0l-6.59 6.59c-.39.39-.39 1.02 0 1.41l6.59 6.59c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L7.83 13H19c.55 0 1-.45 1-1s-.45-1-1-1z"/></svg>
+        </button>
+        <div class="modal-title">Novo Reporte</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">Categoria</label>
+      <div class="cat-grid">
+        <button class="cat-btn selected" onclick="selectCat(this)"><span>🔧</span><span>Equipamento</span></button>
+        <button class="cat-btn" onclick="selectCat(this)"><span>🧹</span><span>Limpeza</span></button>
+        <button class="cat-btn" onclick="selectCat(this)"><span>💡</span><span>Estrutura</span></button>
+        <button class="cat-btn" onclick="selectCat(this)"><span>💬</span><span>Sugestão</span></button>
+      </div>
+
+      <label class="form-label">Equipamento / Local</label>
+      <select class="field-select">
+        <option value="" style="color:#555575">Selecione...</option>
+        <option>Banco de Supino Reto</option>
+        <option>Leg Press 45°</option>
+        <option>Smith Machine</option>
+        <option>Puxada Frontal</option>
+        <option>Cadeira Extensora</option>
+        <option>Colchonetes / Tatame</option>
+        <option>Banheiro / Vestiário</option>
+        <option>Ar-condicionado</option>
+        <option>Outro</option>
+      </select>
+
+      <label class="form-label">Descrição do problema</label>
+      <textarea class="field-textarea" placeholder="Descreva o problema com detalhes..."></textarea>
+
+      <label class="form-label">Foto (opcional)</label>
+      <button class="photo-btn">
+        <svg viewBox="0 0 24 24"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>
+        Tirar ou anexar foto
+      </button>
+
+      <button class="submit-btn" onclick="submitReport()">Enviar Reporte</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <div class="toast-icon"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+    <div class="toast-text" id="toastText">Reporte enviado! Protocolo #1248</div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="window.location.href='02-home-dashboard.html'">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span class="nav-label">Home</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='04-ficha-treino.html'">
+      <svg viewBox="0 0 24 24"><path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/></svg>
+      <span class="nav-label">Treino</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='03-ocupacao-tempo-real.html'">
+      <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+      <span class="nav-label">Lotação</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='05-reserva-equipamentos.html'">
+      <svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+      <span class="nav-label">Reservas</span>
+    </div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <span class="nav-label">Perfil</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openModal() {
+    document.getElementById('newModal').classList.add('show');
+  }
+  function closeModal() {
+    document.getElementById('newModal').classList.remove('show');
+  }
+  function selectCat(el) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  function submitReport() {
+    closeModal();
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+</script>
+</body>
+</html>
